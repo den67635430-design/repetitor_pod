@@ -1,0 +1,21 @@
+{
+  "name": "repetitor-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram бот для Репетитор Под Рукой",
+  "main": "src/bot.js",
+  "scripts": {
+    "dev": "nodemon src/bot.js",
+    "start": "node src/bot.js"
+  },
+  "keywords": ["telegram", "bot", "ai", "education"],
+  "author": "Repetitor Pod Rukoy",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
