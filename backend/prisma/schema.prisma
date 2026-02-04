@@ -1,0 +1,323 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========== ПОЛЬЗОВАТЕЛИ ==========
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  role          Role     @default(STUDENT)
+  
+  telegramId    String?  @unique
+  telegramUsername String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Связи
+  profile       Profile?
+  subscription  Subscription?
+  children      Child[]
+  parent        Parent?
+  
+  // История
+  aiInteractions   AIInteraction[]
+  supportMessages  SupportMessage[]
+  progress         Progress[]
+  
+  @@index([email])
+  @@index([telegramId])
+}
+
+enum Role {
+  STUDENT
+  PARENT
+  ADMIN
+}
+
+model Profile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  grade         Int?     // Класс (1-11, null для дошкольников)
+  birthDate     DateTime?
+  avatar        String?
+  
+  // Настройки
+  voiceGender   String   @default("female")
+  voiceRate     Float    @default(0.9)
+  preferredInputMode  String @default("text")
+  preferredOutputMode String @default("both")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Child {
+  id            String   @id @default(cuid())
+  parentId      String
+  parent        User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  
+  userId        String   @unique
+  name          String
+  grade         Int
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([parentId])
+}
+
+model Parent {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  telegramChatId String?
+  
+  // Настройки уведомлений
+  notifyLessonStart    Boolean @default(true)
+  notifyLessonEnd      Boolean @default(true)
+  notifyAchievement    Boolean @default(true)
+  notifyDailyReport    Boolean @default(true)
+  notifyWeeklyReport   Boolean @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ========== ПОДПИСКИ ==========
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  plan          Plan
+  status        SubscriptionStatus @default(TRIAL)
+  
+  startDate     DateTime
+  endDate       DateTime
+  trialEndsAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Plan {
+  FREE
+  STARTER
+  STANDARD
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+// ========== КОНТЕНТ ==========
+
+model Subject {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  slug          String   @unique
+  description   String?
+  icon          String?
+  
+  lessons       Lesson[]
+}
+
+model Lesson {
+  id            String   @id @default(cuid())
+  subjectId     String
+  subject       Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?
+  grade         Int
+  
+  content       Json
+  difficulty    Int      @default(1)
+  
+  order         Int
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  progress      Progress[]
+  
+  @@index([subjectId])
+  @@index([grade])
+}
+
+// ========== ПРОГРЕСС ==========
+
+model Progress {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  lessonId      String
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  status        ProgressStatus @default(NOT_STARTED)
+  score         Int?
+  timeSpent     Int      @default(0)
+  
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ========== AI ВЗАИМОДЕЙСТВИЯ ==========
+
+model AIInteraction {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  subject       String
+  grade         Int
+  
+  userMessage   String   @db.Text
+  aiResponse    String   @db.Text
+  
+  confidence    Float
+  needsReview   Boolean  @default(false)
+  
+  inputMode     String
+  outputMode    String
+  
+  timestamp     DateTime @default(now())
+  
+  @@index([userId])
+  @@index([timestamp])
+}
+
+// ========== ПОДДЕРЖКА ==========
+
+model SupportMessage {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role          MessageRole
+  content       String   @db.Text
+  
+  escalated     Boolean  @default(false)
+  escalatedAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([userId])
+  @@index([escalated])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model SupportTicket {
+  id            String   @id @default(cuid())
+  userId        String
+  userName      String
+  userEmail     String
+  
+  category      String
+  severity      String
+  status        TicketStatus @default(OPEN)
+  
+  problem       String   @db.Text
+  conversationHistory Json
+  
+  assignedTo    String?
+  resolvedAt    DateTime?
+  
+  telegramSent  Boolean  @default(false)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// ========== ГЕЙМИФИКАЦИЯ ==========
+
+model Achievement {
+  id            String   @id @default(cuid())
+  
+  title         String
+  description   String
+  icon          String
+  
+  requirement   Json
+  points        Int      @default(0)
+  
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  earnedAt      DateTime @default(now())
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model UserStats {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  
+  totalPoints   Int      @default(0)
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  
+  totalLessons  Int      @default(0)
+  totalTime     Int      @default(0)
+  
+  lastActivity  DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+}

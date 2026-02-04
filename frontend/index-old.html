@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Репетитор Под Рукой - AI-репетитор 24/7 по всем предметам</title>
+    <meta name="description" content="Персональный AI-репетитор для школьников. Помощь с уроками 24/7, дешевле обычного репетитора в 10 раз.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .typing-dot {
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-3xl">🤚📚</span>
+                <span class="font-bold text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Репетитор Под Рукой
+                </span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#demo" class="text-gray-600 hover:text-indigo-600 transition">Попробовать</a>
+                <a href="#pricing" class="text-gray-600 hover:text-indigo-600 transition">Тарифы</a>
+            </div>
+            <button class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition">
+                Начать бесплатно
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+                        Репетитор<br/>
+                        <span class="text-yellow-300">Под Рукой</span>
+                    </h1>
+                    <p class="text-xl text-purple-100">
+                        Твой личный AI-учитель всегда с тобой. Помощь с уроками 24/7, дешевле репетитора в 10 раз.
+                    </p>
+                    <div class="space-y-3 text-lg">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>Доступен в любое время</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>По всем школьным предметам</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>Голосовой и текстовый режим</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button onclick="scrollToDemo()" class="bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 hover:text-indigo-900 transition transform hover:scale-105">
+                            🎓 Попробовать бесплатно
+                        </button>
+                    </div>
+                </div>
+                <div class="floating">
+                    <div class="bg-white rounded-2xl p-8 shadow-2xl">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-2xl">
+                                🤖
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">AI-Репетитор</h3>
+                                <p class="text-sm text-gray-500 flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                    Онлайн
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4 text-gray-800 chat-message">
+                                <p class="text-sm font-semibold mb-1">AI-Репетитор:</p>
+                                <p>Привет! Я помогу тебе с любым школьным предметом. Задавай вопросы! 😊</p>
+                            </div>
+                            <div class="bg-indigo-600 text-white rounded-lg p-4 ml-8 chat-message" style="animation-delay: 0.3s">
+                                <p class="text-sm font-semibold mb-1">Ты:</p>
+                                <p>Объясни теорему Пифагора</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-gray-800 chat-message" style="animation-delay: 0.6s">
+                                <p class="text-sm font-semibold mb-1">AI-Репетитор:</p>
+                                <p>Отлично! Теорема Пифагора: a² + b² = c². Хочешь разобрать на примере? 📐</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Попробуйте прямо сейчас!</h2>
+                <p class="text-xl text-gray-600">Задайте вопрос AI-репетитору. Без регистрации.</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+                        <h3 class="text-white font-bold text-lg mb-4">Выберите предмет:</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="selectSubject('Математика', '📐')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold">
+                                📐 Математика
+                            </button>
+                            <button onclick="selectSubject('Русский', '📖')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold">
+                                📖 Русский
+                            </button>
+                            <button onclick="selectSubject('Английский', '🇬🇧')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold">
+                                🇬🇧 Английский
+                            </button>
+                        </div>
+                        <div id="selectedSubject" class="mt-4 text-white font-semibold hidden">
+                            Выбран: <span id="currentSubject"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="chatArea" class="p-6 h-96 overflow-y-auto space-y-4">
+                        <div class="text-center text-gray-400 py-12">
+                            <p class="text-lg">Выберите предмет и задайте вопрос! 👆</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t p-4 bg-gray-50">
+                        <div class="flex items-center space-x-3">
+                            <input 
+                                id="userInput" 
+                                type="text" 
+                                placeholder="Задайте вопрос..." 
+                                class="flex-1 px-4 py-3 rounded-full border-2 border-gray-200 focus:border-indigo-500 focus:outline-none"
+                                onkeypress="if(event.key === 'Enter') sendMessage()"
+                            />
+                            <button onclick="sendMessage()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition">
+                                Отправить →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-16">Выберите тариф</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-200">
+                    <h3 class="text-2xl font-bold mb-2">Старт</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold">490₽</span>
+                        <span class="text-gray-600">/месяц</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span>1 предмет</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span>30 мин в день</span>
+                        </li>
+                    </ul>
+                    <button class="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">
+                        Выбрать
+                    </button>
+                </div>
+                
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-8 shadow-2xl transform scale-105 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-indigo-900 px-4 py-1 rounded-full text-sm font-bold">
+                        ⭐ Популярный
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white">Стандарт</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-white">990₽</span>
+                        <span class="text-purple-200">/месяц</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-white">
+                        <li class="flex items-center">
+                            <span class="text-yellow-300 mr-2">✓</span>
+                            <span>3 предмета</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-yellow-300 mr-2">✓</span>
+                            <span>1 час в день</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-yellow-300 mr-2">✓</span>
+                            <span>Родительский контроль</span>
+                        </li>
+                    </ul>
+                    <button class="w-full bg-white text-indigo-600 py-3 rounded-full font-bold hover:bg-yellow-300 transition">
+                        Начать бесплатно
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-200">
+                    <h3 class="text-2xl font-bold mb-2">Премиум</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold">1490₽</span>
+                        <span class="text-gray-600">/месяц</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span>Все предметы</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span>Безлимит</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span>Поддержка 24/7</span>
+                        </li>
+                    </ul>
+                    <button class="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">
+                        Выбрать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <span class="text-3xl">🤚📚</span>
+                <span class="font-bold text-white">Репетитор Под Рукой</span>
+            </div>
+            <p class="mb-4">© 2026 Репетитор Под Рукой. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentSubject = null;
+        
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function selectSubject(subject, emoji) {
+            currentSubject = subject;
+            document.getElementById('selectedSubject').classList.remove('hidden');
+            document.getElementById('currentSubject').textContent = emoji + ' ' + subject;
+            
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="chat-message bg-gray-100 rounded-lg p-4">
+                    <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор (${subject}):</p>
+                    <p class="text-gray-800">Привет! Я помогу тебе с ${subject.toLowerCase()}ом. Задавай вопросы! 😊</p>
+                </div>
+            `;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            if (!currentSubject) {
+                alert('Сначала выберите предмет!');
+                return;
+            }
+            
+            const chatArea = document.getElementById('chatArea');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message bg-indigo-600 text-white rounded-lg p-4 ml-8';
+            userMsg.innerHTML = `
+                <p class="text-sm font-semibold mb-1">👤 Ты:</p>
+                <p>${escapeHtml(message)}</p>
+            `;
+            chatArea.appendChild(userMsg);
+            input.value = '';
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // Typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'bg-gray-100 rounded-lg p-4';
+            typingDiv.innerHTML = `
+                <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор печатает...</p>
+                <div class="flex space-x-1">
+                    <span class="w-2 h-2 bg-indigo-600 rounded-full typing-dot"></span>
+                    <span class="w-2 h-2 bg-indigo-600 rounded-full typing-dot"></span>
+                    <span class="w-2 h-2 bg-indigo-600 rounded-full typing-dot"></span>
+                </div>
+            `;
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // AI response
+            setTimeout(() => {
+                document.getElementById('typing-indicator').remove();
+                
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message bg-gray-100 rounded-lg p-4';
+                aiMsg.innerHTML = `
+                    <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор:</p>
+                    <p class="text-gray-800">${getAIResponse(message, currentSubject)}</p>
+                `;
+                chatArea.appendChild(aiMsg);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 1500);
+        }
+        
+        function getAIResponse(question, subject) {
+            const responses = {
+                'Математика': [
+                    'Отличный вопрос! Давай разберём это пошагово. Что у нас дано в условии?',
+                    'Хорошо! Для решения нам понадобится формула. Какую формулу мы можем использовать?',
+                    'Давай подумаем вместе! Что нам нужно найти?'
+                ],
+                'Русский': [
+                    'Хороший вопрос! Это правило легко запомнить. Давай разберём примеры.',
+                    'Отлично! Попробуем на конкретных примерах. Составь предложение!',
+                    'Интересный вопрос! Эту тему легко понять.'
+                ],
+                'Английский': [
+                    'Great question! Let me explain... (Отличный вопрос! Объясню...)',
+                    'Good! Давай разберём это правило на примерах.',
+                    'Excellent! This is important. Let\'s practice!'
+                ]
+            };
+            
+            const subjectResponses = responses[subject] || [
+                'Отличный вопрос! Давай разберёмся вместе.',
+                'Хорошо! Это интересная тема.',
+                'Понял! Сейчас объясню.'
+            ];
+            
+            return subjectResponses[Math.floor(Math.random() * subjectResponses.length)];
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

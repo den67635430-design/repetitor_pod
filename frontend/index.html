@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Репетитор Под Рукой - AI-репетитор 24/7 по всем предметам</title>
+    <meta name="description" content="Персональный AI-репетитор для школьников. Помощь с уроками 24/7, дешевле обычного репетитора в 10 раз.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Manrope', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .floating { animation: float 6s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .chat-message { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        /* Кнопка админа */
+        .admin-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .test-mode-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Баннер тестового режима (скрыт по умолчанию) -->
+    <div id="testModeBanner" class="test-mode-banner hidden">
+        🧪 ТЕСТОВЫЙ РЕЖИМ АКТИВЕН - Все функции бесплатны • Собираем отзывы!
+    </div>
+
+    <!-- Кнопки админа и поддержки -->
+    <div class="admin-toggle">
+        <div class="flex flex-col space-y-3">
+            <!-- Кнопка поддержки -->
+            <button onclick="openSupport()" class="bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-700 transition text-sm inline-flex items-center justify-center space-x-2 whitespace-nowrap">
+                <span>💬</span>
+                <span>Поддержка</span>
+            </button>
+            
+            <!-- Кнопка админа -->
+            <button onclick="toggleTestMode()" id="adminBtn" class="bg-gray-900 text-white px-4 py-2 rounded-full shadow-lg hover:bg-gray-800 transition text-sm inline-flex items-center justify-center space-x-2 whitespace-nowrap">
+                <span>🔧</span>
+                <span id="adminBtnText">Админ</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-3xl">🤚📚</span>
+                <span class="font-bold text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Репетитор Под Рукой
+                </span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#demo" class="text-gray-600 hover:text-indigo-600 transition">Попробовать</a>
+                <a href="#pricing" class="text-gray-600 hover:text-indigo-600 transition">Тарифы</a>
+            </div>
+            <button class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition">
+                Начать бесплатно
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+                        Репетитор<br/>
+                        <span class="text-yellow-300">Под Рукой</span>
+                    </h1>
+                    <p class="text-xl text-purple-100">
+                        Твой личный AI-учитель всегда с тобой. Помощь с уроками 24/7, дешевле репетитора в 10 раз.
+                    </p>
+                    <div class="space-y-3 text-lg">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>Доступен в любое время</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>По всем школьным предметам</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-green-300 text-2xl">✓</span>
+                            <span>Голосовой и текстовый режим</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button onclick="scrollToDemo()" class="bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 hover:text-indigo-900 transition transform hover:scale-105">
+                            🎓 Попробовать бесплатно
+                        </button>
+                    </div>
+                    <p class="text-sm text-purple-200">
+                        ✨ Первый месяц бесплатно в тестовом режиме • Без привязки карты
+                    </p>
+                </div>
+                <div class="floating">
+                    <div class="bg-white rounded-2xl p-8 shadow-2xl">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-2xl">
+                                🤖
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">AI-Репетитор</h3>
+                                <p class="text-sm text-gray-500 flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                    Онлайн
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4 text-gray-800 chat-message">
+                                <p class="text-sm font-semibold mb-1">AI-Репетитор:</p>
+                                <p>Привет! Я помогу тебе с любым школьным предметом. Задавай вопросы! 😊</p>
+                            </div>
+                            <div class="bg-indigo-600 text-white rounded-lg p-4 ml-8 chat-message" style="animation-delay: 0.3s">
+                                <p class="text-sm font-semibold mb-1">Ты:</p>
+                                <p>Объясни теорему Пифагора</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-gray-800 chat-message" style="animation-delay: 0.6s">
+                                <p class="text-sm font-semibold mb-1">AI-Репетитор:</p>
+                                <p>Отлично! Теорема Пифагора: a² + b² = c². Хочешь разобрать на примере? 📐</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problems Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12">Знакомые проблемы?</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 card-hover">
+                    <div class="text-4xl mb-4">😰</div>
+                    <h3 class="font-bold text-lg mb-2">Не понимает в школе</h3>
+                    <p class="text-gray-600">Ребёнок приходит домой и не знает как делать домашку</p>
+                </div>
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 card-hover">
+                    <div class="text-4xl mb-4">💸</div>
+                    <h3 class="font-bold text-lg mb-2">Репетиторы дорогие</h3>
+                    <p class="text-gray-600">2000₽/час × 8 часов = 16,000₽ в месяц</p>
+                </div>
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 card-hover">
+                    <div class="text-4xl mb-4">⏰</div>
+                    <h3 class="font-bold text-lg mb-2">Нет времени</h3>
+                    <p class="text-gray-600">Работа, дела — не успеваете помогать с уроками</p>
+                </div>
+                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 card-hover">
+                    <div class="text-4xl mb-4">📱</div>
+                    <h3 class="font-bold text-lg mb-2">Отвлекается</h3>
+                    <p class="text-gray-600">Телефон, игры — учёба на последнем месте</p>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <p class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">У нас есть решение! 👇</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Попробуйте прямо сейчас!</h2>
+                <p class="text-xl text-gray-600">Задайте вопрос AI-репетитору. Без регистрации.</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+                        <h3 class="text-white font-bold text-lg mb-4">Выберите предмет:</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="selectSubject('Математика', '📐')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                📐 Математика
+                            </button>
+                            <button onclick="selectSubject('Русский', '📖')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                📖 Русский
+                            </button>
+                            <button onclick="selectSubject('Английский', '🇬🇧')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                🇬🇧 Английский
+                            </button>
+                            <button onclick="selectSubject('Физика', '⚡')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                ⚡ Физика
+                            </button>
+                            <button onclick="selectSubject('Химия', '🧪')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                🧪 Химия
+                            </button>
+                            <button onclick="selectSubject('Биология', '🧬')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                🧬 Биология
+                            </button>
+                            <button onclick="selectSubject('История', '🌍')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                🌍 История
+                            </button>
+                            <button onclick="selectSubject('Литература', '📚')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                📚 Литература
+                            </button>
+                            <button onclick="selectSubject('Французский', '🇫🇷')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg py-3 px-4 transition font-semibold text-sm">
+                                🇫🇷 Французский
+                            </button>
+                        </div>
+                        <div id="selectedSubject" class="mt-4 text-white font-semibold hidden">
+                            Выбран: <span id="currentSubject"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="chatArea" class="p-6 h-96 overflow-y-auto space-y-4">
+                        <div class="text-center text-gray-400 py-12">
+                            <p class="text-lg">Выберите предмет и задайте вопрос! 👆</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t p-4 bg-gray-50">
+                        <div class="flex items-center space-x-3">
+                            <input 
+                                id="userInput" 
+                                type="text" 
+                                placeholder="Задайте вопрос..." 
+                                class="flex-1 px-4 py-3 rounded-full border-2 border-gray-200 focus:border-indigo-500 focus:outline-none"
+                                onkeypress="if(event.key === 'Enter') sendMessage()"
+                            />
+                            <button onclick="sendMessage()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition">
+                                Отправить →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4">Выберите тариф</h2>
+            <p class="text-xl text-gray-600 text-center mb-8">Экономьте до 33% при оплате от 3 месяцев</p>
+            
+            <!-- Переключатель периода оплаты -->
+            <div class="flex justify-center mb-12">
+                <div class="bg-white rounded-full p-2 shadow-lg inline-flex">
+                    <button onclick="setPricingPeriod('monthly')" id="btn-monthly" class="px-6 py-3 rounded-full font-semibold transition bg-indigo-600 text-white">
+                        Помесячно
+                    </button>
+                    <button onclick="setPricingPeriod('quarterly')" id="btn-quarterly" class="px-6 py-3 rounded-full font-semibold transition text-gray-600">
+                        От 3 месяцев
+                        <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">-33%</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Дошкольники -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+                    <h3 class="text-2xl font-bold mb-2">Дошкольники</h3>
+                    <p class="text-gray-600 mb-6">Для малышей 5-7 лет</p>
+                    <div class="mb-6">
+                        <div id="price-kids-monthly">
+                            <span class="text-4xl font-bold">1490₽</span>
+                            <span class="text-gray-600">/месяц</span>
+                        </div>
+                        <div id="price-kids-quarterly" class="hidden">
+                            <span class="text-4xl font-bold">990₽</span>
+                            <span class="text-gray-600">/месяц</span>
+                            <div class="text-sm text-gray-500 mt-1">
+                                <span class="line-through">1490₽</span> - экономия 500₽/мес
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Игровое обучение</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Буквы, цифры, цвета</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Голосовой режим</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Родительский контроль</span>
+                        </li>
+                    </ul>
+                    <button class="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">
+                        Выбрать
+                    </button>
+                </div>
+                
+                <!-- Стандарт (Popular) -->
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-8 shadow-2xl card-hover transform scale-105 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-indigo-900 px-4 py-1 rounded-full text-sm font-bold">
+                        ⭐ Популярный
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white">Стандарт</h3>
+                    <p class="text-purple-200 mb-6">1-11 класс</p>
+                    <div class="mb-6">
+                        <div id="price-standard-monthly">
+                            <span class="text-4xl font-bold text-white">1990₽</span>
+                            <span class="text-purple-200">/месяц</span>
+                        </div>
+                        <div id="price-standard-quarterly" class="hidden">
+                            <span class="text-4xl font-bold text-white">1490₽</span>
+                            <span class="text-purple-200">/месяц</span>
+                            <div class="text-sm text-purple-200 mt-1">
+                                <span class="line-through">1990₽</span> - экономия 500₽/мес
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-white">
+                        <li class="flex items-center space-x-3">
+                            <span class="text-yellow-300 text-xl">✓</span>
+                            <span>3 предмета на выбор</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-yellow-300 text-xl">✓</span>
+                            <span>Безлимитное время</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-yellow-300 text-xl">✓</span>
+                            <span>Голос + текст</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-yellow-300 text-xl">✓</span>
+                            <span>Родительский контроль</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-yellow-300 text-xl">✓</span>
+                            <span>Проверка домашки</span>
+                        </li>
+                    </ul>
+                    <button class="w-full bg-white text-indigo-600 py-3 rounded-full font-bold hover:bg-yellow-300 transition">
+                        Начать бесплатно
+                    </button>
+                </div>
+                
+                <!-- Премиум -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+                    <h3 class="text-2xl font-bold mb-2">Премиум</h3>
+                    <p class="text-gray-600 mb-6">Всё включено</p>
+                    <div class="mb-6">
+                        <div id="price-premium-monthly">
+                            <span class="text-4xl font-bold">2990₽</span>
+                            <span class="text-gray-600">/месяц</span>
+                        </div>
+                        <div id="price-premium-quarterly" class="hidden">
+                            <span class="text-4xl font-bold">2490₽</span>
+                            <span class="text-gray-600">/месяц</span>
+                            <div class="text-sm text-gray-500 mt-1">
+                                <span class="line-through">2990₽</span> - экономия 500₽/мес
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>ВСЕ предметы</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Безлимит</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Все функции</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Приоритетная поддержка</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-green-500 text-xl">✓</span>
+                            <span>Подготовка к ЕГЭ/ОГЭ</span>
+                        </li>
+                    </ul>
+                    <button class="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">
+                        Выбрать
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-gray-600">
+                    ✅ Первый месяц бесплатно в тестовом режиме • ✅ Отмена в любой момент • ✅ Возврат денег в течение 14 дней
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Готовы начать?</h2>
+            <p class="text-xl mb-8 text-purple-100">Присоединяйтесь к 2,450+ ученикам</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-indigo-600 px-10 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition transform hover:scale-105">
+                    🚀 Начать бесплатно
+                </button>
+                <button class="border-2 border-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-indigo-600 transition">
+                    💬 Открыть в Telegram
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <span class="text-3xl">🤚📚</span>
+                    <span class="font-bold text-white">Репетитор Под Рукой</span>
+                </div>
+                <p class="mb-6">Твой личный AI-учитель всегда с тобой</p>
+                
+                <!-- Кнопка оставить отзыв -->
+                <button onclick="openReviewForm()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition inline-flex items-center space-x-2 mb-6">
+                    <span>⭐</span>
+                    <span>Оставить отзыв</span>
+                </button>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8 mb-8 text-sm">
+                <div>
+                    <h4 class="font-bold text-white mb-4">Продукт</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#demo" class="hover:text-white transition">Попробовать</a></li>
+                        <li><a href="#pricing" class="hover:text-white transition">Тарифы</a></li>
+                        <li><a href="#" class="hover:text-white transition">Предметы</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Компания</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">О нас</a></li>
+                        <li><a href="#" class="hover:text-white transition">Блог</a></li>
+                        <li><a href="#" class="hover:text-white transition">Контакты</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Поддержка</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                        <li><a href="#" onclick="openSupport(); return false;" class="hover:text-white transition">Поддержка 24/7</a></li>
+                        <li><a href="#" class="hover:text-white transition">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Контакты</h4>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="https://t.me/kontentcod" target="_blank" class="hover:text-white transition flex items-center space-x-2">
+                                <span>💬</span>
+                                <span>@kontentcod</span>
+                            </a>
+                        </li>
+                        <li><a href="/cdn-cgi/l/email-protection#f1828481819e8385b1839481948598859e83dc819e95dc83849a9e88df8384" class="hover:text-white transition"><span class="__cf_email__" data-cfemail="3d4e484d4d524f497d4f584d58495449524f104d5259104f48565244134f48">[email&#160;protected]</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>© 2026 Репетитор Под Рукой. Все права защищены.</p>
+                <p class="mt-2">Разработано <a href="https://t.me/kontentcod" target="_blank" class="text-indigo-400 hover:text-indigo-300 transition">@kontentcod</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Переменные
+        let currentSubject = null;
+        let testModeEnabled = false;
+
+        // Открыть окно поддержки
+        function openSupport() {
+            const supportMessage = `
+🤖 ПОДДЕРЖКА "РЕПЕТИТОР ПОД РУКОЙ"
+
+Как мы можем вам помочь?
+
+📧 Email: support@repetitor-pod-rukoy.ru
+💬 Telegram: @kontentcod
+⏰ Время работы: 24/7
+
+Или напишите нам прямо сейчас:
+            `.trim();
+            
+            alert(supportMessage);
+            
+            // Можно открыть модальное окно с формой поддержки
+            // Или перенаправить в Telegram
+            const openTelegram = confirm('Открыть Telegram для быстрой связи?');
+            if (openTelegram) {
+                window.open('https://t.me/kontentcod', '_blank');
+            }
+        }
+
+        // Открыть форму отзыва
+        function openReviewForm() {
+            const reviewMessage = `
+⭐ ОСТАВИТЬ ОТЗЫВ
+
+Мы ценим ваше мнение!
+
+Пожалуйста, напишите отзыв:
+- Что вам понравилось?
+- Что можно улучшить?
+- Какие функции добавить?
+
+Отправить отзыв можно:
+💬 Telegram: @kontentcod
+📧 Email: feedback@repetitor-pod-rukoy.ru
+            `.trim();
+            
+            alert(reviewMessage);
+            
+            const openTelegram = confirm('Написать отзыв в Telegram?');
+            if (openTelegram) {
+                window.open('https://t.me/kontentcod', '_blank');
+            }
+        }
+
+        // Управление тестовым режимом (для админа)
+        function toggleTestMode() {
+            testModeEnabled = !testModeEnabled;
+            const banner = document.getElementById('testModeBanner');
+            const adminBtn = document.getElementById('adminBtnText');
+            
+            if (testModeEnabled) {
+                banner.classList.remove('hidden');
+                adminBtn.textContent = '✓ Тест режим ВКЛ';
+                document.getElementById('adminBtn').classList.add('bg-green-600');
+                document.getElementById('adminBtn').classList.remove('bg-gray-900');
+                
+                // Сохранить в localStorage
+                localStorage.setItem('testMode', 'true');
+                
+                alert('🧪 ТЕСТОВЫЙ РЕЖИМ ВКЛЮЧЕН!\n\nТеперь:\n✅ Все тарифы бесплатны\n✅ Пользователи могут оставлять отзывы\n✅ Вы можете собирать фидбек\n\nДля отключения нажмите кнопку снова.');
+            } else {
+                banner.classList.add('hidden');
+                adminBtn.textContent = 'Админ';
+                document.getElementById('adminBtn').classList.remove('bg-green-600');
+                document.getElementById('adminBtn').classList.add('bg-gray-900');
+                
+                localStorage.removeItem('testMode');
+                
+                alert('✅ Тестовый режим ВЫКЛЮЧЕН\n\nПлатные тарифы активны.');
+            }
+        }
+
+        // Проверка при загрузке страницы
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('testMode') === 'true') {
+                testModeEnabled = true;
+                document.getElementById('testModeBanner').classList.remove('hidden');
+                document.getElementById('adminBtnText').textContent = '✓ Тест режим ВКЛ';
+                document.getElementById('adminBtn').classList.add('bg-green-600');
+                document.getElementById('adminBtn').classList.remove('bg-gray-900');
+            }
+        });
+
+        // Переключатель тарифов
+        function setPricingPeriod(period) {
+            // Обновить кнопки
+            const monthlyBtn = document.getElementById('btn-monthly');
+            const quarterlyBtn = document.getElementById('btn-quarterly');
+            
+            if (period === 'monthly') {
+                monthlyBtn.classList.add('bg-indigo-600', 'text-white');
+                monthlyBtn.classList.remove('text-gray-600');
+                quarterlyBtn.classList.remove('bg-indigo-600', 'text-white');
+                quarterlyBtn.classList.add('text-gray-600');
+                
+                // Показать помесячные цены
+                document.getElementById('price-kids-monthly').classList.remove('hidden');
+                document.getElementById('price-kids-quarterly').classList.add('hidden');
+                document.getElementById('price-standard-monthly').classList.remove('hidden');
+                document.getElementById('price-standard-quarterly').classList.add('hidden');
+                document.getElementById('price-premium-monthly').classList.remove('hidden');
+                document.getElementById('price-premium-quarterly').classList.add('hidden');
+            } else {
+                quarterlyBtn.classList.add('bg-indigo-600', 'text-white');
+                quarterlyBtn.classList.remove('text-gray-600');
+                monthlyBtn.classList.remove('bg-indigo-600', 'text-white');
+                monthlyBtn.classList.add('text-gray-600');
+                
+                // Показать квартальные цены
+                document.getElementById('price-kids-monthly').classList.add('hidden');
+                document.getElementById('price-kids-quarterly').classList.remove('hidden');
+                document.getElementById('price-standard-monthly').classList.add('hidden');
+                document.getElementById('price-standard-quarterly').classList.remove('hidden');
+                document.getElementById('price-premium-monthly').classList.add('hidden');
+                document.getElementById('price-premium-quarterly').classList.remove('hidden');
+            }
+        }
+
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function selectSubject(subject, emoji) {
+            currentSubject = subject;
+            document.getElementById('selectedSubject').classList.remove('hidden');
+            document.getElementById('currentSubject').textContent = emoji + ' ' + subject;
+            
+            // Правильные окончания для разных предметов
+            const subjectEndings = {
+                'Математика': 'математикой',
+                'Русский': 'русским языком',
+                'Английский': 'английским языком',
+                'Физика': 'физикой',
+                'Химия': 'химией',
+                'Биология': 'биологией',
+                'История': 'историей',
+                'Литература': 'литературой',
+                'Французский': 'французским языком'
+            };
+            
+            const subjectText = subjectEndings[subject] || subject.toLowerCase();
+            
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="chat-message bg-gray-100 rounded-lg p-4">
+                    <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор (${subject}):</p>
+                    <p class="text-gray-800">Привет! Я помогу тебе с ${subjectText}. Задавай вопросы! 😊</p>
+                </div>
+            `;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            if (!currentSubject) {
+                alert('Сначала выберите предмет!');
+                return;
+            }
+            
+            const chatArea = document.getElementById('chatArea');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message bg-indigo-600 text-white rounded-lg p-4 ml-8';
+            userMsg.innerHTML = `
+                <p class="text-sm font-semibold mb-1">👤 Ты:</p>
+                <p>${escapeHtml(message)}</p>
+            `;
+            chatArea.appendChild(userMsg);
+            input.value = '';
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // Typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'bg-gray-100 rounded-lg p-4';
+            typingDiv.innerHTML = `
+                <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор печатает...</p>
+            `;
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // AI response
+            setTimeout(() => {
+                document.getElementById('typing-indicator').remove();
+                
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message bg-gray-100 rounded-lg p-4';
+                aiMsg.innerHTML = `
+                    <p class="text-sm font-semibold mb-1 text-indigo-600">🤖 AI-Репетитор:</p>
+                    <p class="text-gray-800">${getAIResponse(message, currentSubject)}</p>
+                `;
+                chatArea.appendChild(aiMsg);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 1500);
+        }
+        
+        function getAIResponse(question, subject) {
+            const responses = {
+                'Математика': [
+                    'Отличный вопрос! Давай разберём это пошагово. Что у нас дано в условии?',
+                    'Хорошо! Для решения нам понадобится формула. Какую формулу мы можем использовать?',
+                    'Давай подумаем вместе! Что нам нужно найти?'
+                ],
+                'Русский': [
+                    'Хороший вопрос! Это правило легко запомнить. Давай разберём примеры.',
+                    'Отлично! Попробуем на конкретных примерах. Составь предложение!',
+                    'Интересный вопрос! Эту тему легко понять.'
+                ],
+                'Английский': [
+                    'Great question! Let me explain... (Отличный вопрос! Объясню...)',
+                    'Good! Давай разберём это правило на примерах.',
+                    'Excellent! This is important. Let\'s practice!'
+                ],
+                'Физика': [
+                    'Отличный вопрос по физике! Давай разберём это явление.',
+                    'Хорошо! Эту физическую задачу можно решить через формулу. Что у нас известно?',
+                    'Интересно! Давай подумаем о законах физики, которые здесь действуют.'
+                ],
+                'Химия': [
+                    'Хороший вопрос! Давай разберём эту химическую реакцию.',
+                    'Отлично! Для решения нужно вспомнить свойства веществ. Что ты знаешь об этом?',
+                    'Интересная задача! Какие элементы участвуют в реакции?'
+                ],
+                'Биология': [
+                    'Отличный вопрос по биологии! Давай разберём этот процесс.',
+                    'Хорошо! Эта тема про живые организмы очень интересная. Что ты уже знаешь?',
+                    'Интересный вопрос! Давай посмотрим на примерах из природы.'
+                ],
+                'История': [
+                    'Отличный исторический вопрос! Давай разберём это событие.',
+                    'Хорошо! Эта эпоха очень важная. Что ты уже знаешь об этом периоде?',
+                    'Интересная тема! Давай посмотрим на причины и последствия.'
+                ],
+                'Литература': [
+                    'Отличный вопрос о литературе! Давай разберём это произведение.',
+                    'Хорошо! Этот автор очень интересный. Что ты думаешь о героях?',
+                    'Интересная тема! Давай поговорим о смысле этого текста.'
+                ],
+                'Французский': [
+                    'Très bien! (Очень хорошо!) Давай разберём это правило.',
+                    'Excellent! Французский язык красивый. Попробуем на примерах!',
+                    'Parfait! (Отлично!) Это важная тема. Давай практиковать!'
+                ]
+            };
+            
+            const subjectResponses = responses[subject] || [
+                'Отличный вопрос! Давай разберёмся вместе.',
+                'Хорошо! Это интересная тема.',
+                'Понял! Сейчас объясню.'
+            ];
+            
+            return subjectResponses[Math.floo
