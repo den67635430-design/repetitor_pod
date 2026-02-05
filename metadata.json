@@ -1,0 +1,7 @@
+{
+  "name": "Репетитор Под Рукой",
+  "description": "Твой личный AI-учитель всегда с тобой. Помощь с уроками 24/7.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
