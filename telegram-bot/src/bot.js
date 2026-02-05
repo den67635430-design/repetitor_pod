@@ -16,6 +16,50 @@ const bot = new TelegramBot(token, { polling: true });
 // Хранилище сессий пользователей
 const userSessions = new Map();
 
+// Rate limiting per user: track message timestamps
+const userRateLimits = new Map();
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const MAX_MESSAGES_PER_HOUR = 50;
+
+// Check rate limit for a user
+function checkRateLimit(chatId) {
+  const now = Date.now();
+  const userTimestamps = userRateLimits.get(chatId) || [];
+  
+  // Remove timestamps older than the window
+  const recentTimestamps = userTimestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW);
+  
+  if (recentTimestamps.length >= MAX_MESSAGES_PER_HOUR) {
+    return false; // Rate limit exceeded
+  }
+  
+  // Add current timestamp and update
+  recentTimestamps.push(now);
+  userRateLimits.set(chatId, recentTimestamps);
+  return true;
+}
+
+// Clean up old rate limit entries periodically (every 10 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [chatId, timestamps] of userRateLimits.entries()) {
+    const recentTimestamps = timestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW);
+    if (recentTimestamps.length === 0) {
+      userRateLimits.delete(chatId);
+    } else {
+      userRateLimits.set(chatId, recentTimestamps);
+    }
+  }
+  
+  // Also clean up old sessions (inactive for 24 hours)
+  const SESSION_TIMEOUT = 24 * 60 * 60 * 1000;
+  for (const [chatId, session] of userSessions.entries()) {
+    if (session.lastActivity && now - session.lastActivity > SESSION_TIMEOUT) {
+      userSessions.delete(chatId);
+    }
+  }
+}, 10 * 60 * 1000);
+
 console.log('🤖 Telegram бот "Репетитор Под Рукой" запущен!');
 
 // Команда /start
@@ -112,6 +156,25 @@ bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const userMessage = msg.text;
     
+    // Check rate limit first
+    if (!checkRateLimit(chatId)) {
+      await bot.sendMessage(chatId,
+        '⏳ Вы отправили слишком много сообщений. Попробуйте через час.\n\n' +
+        '💡 Лимит: 50 сообщений в час.',
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+    
+    // Validate message length
+    if (userMessage.length > 2000) {
+      await bot.sendMessage(chatId,
+        '❗ Сообщение слишком длинное. Максимум 2000 символов.',
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+    
     // Получить сессию
     const session = userSessions.get(chatId);
     
@@ -128,6 +191,9 @@ bot.on('message', async (msg) => {
       );
       return;
     }
+    
+    // Update last activity timestamp
+    session.lastActivity = Date.now();
     
     // Показать "печатает..."
     await bot.sendChatAction(chatId, 'typing');
