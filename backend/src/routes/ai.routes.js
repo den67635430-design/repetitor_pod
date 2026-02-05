@@ -58,10 +58,23 @@ router.post('/chat',
       res.json({
         text: response.text,
         confidence: response.confidence,
-        needsReview: response.needsReview
+        needsReview: response.needsReview,
+        usage: response.usage
       });
 
     } catch (error) {
+      // Обработка ошибки превышения квоты
+      if (error.message && error.message.startsWith('QUOTA_EXCEEDED')) {
+        const [, percentUsed, limit] = error.message.split(':');
+        return res.status(429).json({ 
+          error: 'Превышен лимит использования AI',
+          quotaExceeded: true,
+          percentUsed: parseInt(percentUsed, 10),
+          limit: parseInt(limit, 10),
+          message: 'Ваш месячный лимит токенов исчерпан. Обновите подписку или дождитесь следующего месяца.'
+        });
+      }
+      
       if (process.env.NODE_ENV === 'development') {
         console.error('AI Chat Error:', error);
       }
@@ -120,6 +133,58 @@ router.get('/history/:subject',
         console.error('History Error:', error);
       }
       res.status(500).json({ error: 'Не удалось загрузить историю' });
+    }
+  }
+);
+
+// GET /api/ai/usage - Получить статистику использования токенов
+router.get('/usage',
+  authenticate,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const quotaInfo = await aiService.checkQuota(userId);
+      
+      // Получить историю использования за последние 30 дней
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+      
+      const recentUsage = await prisma.tokenUsage.findMany({
+        where: {
+          userId,
+          createdAt: { gte: thirtyDaysAgo }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 100
+      });
+      
+      // Агрегировать по дням
+      const dailyUsage = {};
+      recentUsage.forEach(usage => {
+        const date = usage.createdAt.toISOString().split('T')[0];
+        if (!dailyUsage[date]) {
+          dailyUsage[date] = { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 0 };
+        }
+        dailyUsage[date].inputTokens += usage.inputTokens;
+        dailyUsage[date].outputTokens += usage.outputTokens;
+        dailyUsage[date].totalTokens += usage.totalTokens;
+        dailyUsage[date].requests += 1;
+      });
+      
+      res.json({
+        quota: quotaInfo,
+        dailyUsage: Object.entries(dailyUsage).map(([date, data]) => ({ date, ...data })),
+        totalRequests: recentUsage.length
+      });
+
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Usage Stats Error:', error);
+      }
+      res.status(500).json({ error: 'Не удалось загрузить статистику' });
     }
   }
 );

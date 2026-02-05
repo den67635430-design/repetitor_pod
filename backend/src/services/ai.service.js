@@ -4,6 +4,14 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+// Лимиты токенов по тарифам (в месяц)
+const TIER_TOKEN_LIMITS = {
+  FREE: 50000,      // 50k токенов/месяц
+  STARTER: 200000,  // 200k токенов/месяц
+  STANDARD: 500000, // 500k токенов/месяц
+  PREMIUM: 2000000  // 2M токенов/месяц
+};
+
 class AIService {
   constructor() {
     this.client = new Anthropic({
@@ -11,8 +19,116 @@ class AIService {
     });
   }
 
+  /**
+   * Получить лимит токенов для пользователя по его тарифу
+   */
+  async getUserTokenLimit(userId) {
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId }
+    });
+    
+    const plan = subscription?.plan || 'FREE';
+    return TIER_TOKEN_LIMITS[plan] || TIER_TOKEN_LIMITS.FREE;
+  }
+
+  /**
+   * Получить или создать запись о квоте на текущий месяц
+   */
+  async getOrCreateMonthlyQuota(userId) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    
+    const tokenLimit = await this.getUserTokenLimit(userId);
+    
+    let quota = await prisma.monthlyTokenQuota.findUnique({
+      where: {
+        userId_year_month: { userId, year, month }
+      }
+    });
+    
+    if (!quota) {
+      quota = await prisma.monthlyTokenQuota.create({
+        data: {
+          userId,
+          year,
+          month,
+          tokensUsed: 0,
+          tokenLimit
+        }
+      });
+    }
+    
+    return quota;
+  }
+
+  /**
+   * Проверить, есть ли у пользователя свободные токены
+   */
+  async checkQuota(userId) {
+    const quota = await this.getOrCreateMonthlyQuota(userId);
+    const remaining = quota.tokenLimit - quota.tokensUsed;
+    
+    return {
+      hasQuota: remaining > 0,
+      remaining,
+      used: quota.tokensUsed,
+      limit: quota.tokenLimit,
+      percentUsed: Math.round((quota.tokensUsed / quota.tokenLimit) * 100)
+    };
+  }
+
+  /**
+   * Обновить использование токенов
+   */
+  async updateTokenUsage(userId, inputTokens, outputTokens, subject, model) {
+    const totalTokens = inputTokens + outputTokens;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    
+    // Записать детальное использование
+    await prisma.tokenUsage.create({
+      data: {
+        userId,
+        inputTokens,
+        outputTokens,
+        totalTokens,
+        model,
+        subject
+      }
+    });
+    
+    // Обновить месячную квоту
+    await prisma.monthlyTokenQuota.upsert({
+      where: {
+        userId_year_month: { userId, year, month }
+      },
+      update: {
+        tokensUsed: {
+          increment: totalTokens
+        }
+      },
+      create: {
+        userId,
+        year,
+        month,
+        tokensUsed: totalTokens,
+        tokenLimit: await this.getUserTokenLimit(userId)
+      }
+    });
+    
+    return totalTokens;
+  }
+
   async chat({ message, subject, grade, userId, conversationHistory = [], outputMode = 'text' }) {
     try {
+      // Проверка квоты ПЕРЕД вызовом API
+      const quotaCheck = await this.checkQuota(userId);
+      if (!quotaCheck.hasQuota) {
+        throw new Error(`QUOTA_EXCEEDED:${quotaCheck.percentUsed}:${quotaCheck.limit}`);
+      }
+      
       // Построить system prompt
       const systemPrompt = this.buildSystemPrompt(subject, grade, outputMode);
       
@@ -38,6 +154,19 @@ class AIService {
       
       const aiResponse = response.content[0].text;
       
+      // Получить использование токенов из ответа API
+      const inputTokens = response.usage?.input_tokens || 0;
+      const outputTokens = response.usage?.output_tokens || 0;
+      
+      // Записать использование токенов
+      await this.updateTokenUsage(
+        userId,
+        inputTokens,
+        outputTokens,
+        subject,
+        'claude-sonnet-4-20250514'
+      );
+      
       // Валидация ответа
       const validation = this.validateResponse(message, aiResponse, subject);
       
@@ -54,14 +183,29 @@ class AIService {
         outputMode
       });
       
+      // Получить обновлённую квоту для ответа
+      const updatedQuota = await this.checkQuota(userId);
+      
       return {
         text: aiResponse,
         confidence: validation.confidence,
-        needsReview: validation.confidence < 0.7
+        needsReview: validation.confidence < 0.7,
+        usage: {
+          inputTokens,
+          outputTokens,
+          totalTokens: inputTokens + outputTokens,
+          remaining: updatedQuota.remaining,
+          percentUsed: updatedQuota.percentUsed
+        }
       };
       
     } catch (error) {
-      console.error('AI Service Error:', error);
+      if (error.message.startsWith('QUOTA_EXCEEDED')) {
+        throw error; // Пробросить ошибку квоты как есть
+      }
+      if (process.env.NODE_ENV === 'development') {
+        console.error('AI Service Error:', error);
+      }
       throw new Error('Не удалось получить ответ от AI');
     }
   }

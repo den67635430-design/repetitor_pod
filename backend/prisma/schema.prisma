@@ -321,3 +321,40 @@ model UserStats {
   
   @@index([userId])
 }
+
+// ========== ОТСЛЕЖИВАНИЕ ТОКЕНОВ ИИ ==========
+
+model TokenUsage {
+  id            String   @id @default(cuid())
+  userId        String
+  
+  inputTokens   Int
+  outputTokens  Int
+  totalTokens   Int
+  
+  model         String   @default("claude-sonnet-4")
+  subject       String?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model MonthlyTokenQuota {
+  id            String   @id @default(cuid())
+  userId        String
+  
+  year          Int
+  month         Int
+  
+  tokensUsed    Int      @default(0)
+  tokenLimit    Int      // Лимит зависит от тарифа
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, year, month])
+  @@index([userId])
+}
