@@ -164,17 +164,26 @@ router.post('/link-child',
         return res.status(409).json({ error: 'Ребёнок уже привязан' });
       }
 
-      // Создать связь
+      // Создать связь с pending consent
       const child = await prisma.child.create({
         data: {
           parentId: req.user.id,
           userId: childUserId,
           name,
-          grade
+          grade,
+          consentStatus: 'PENDING',
+          childNotified: true,
+          notifiedAt: new Date()
         }
       });
 
-      res.status(201).json({ child });
+      // TODO: Send notification to child about monitoring request
+      // This would integrate with your notification system
+
+      res.status(201).json({ 
+        child,
+        message: 'Запрос на привязку отправлен. Ребёнок должен подтвердить.'
+      });
 
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -184,5 +193,109 @@ router.post('/link-child',
     }
   }
 );
+
+// POST /api/parent/consent/:childId - Child responds to monitoring request
+router.post('/consent/:childId',
+  authenticate,
+  [
+    param('childId').isUUID().withMessage('Invalid childId format'),
+    body('consent').isIn(['approve', 'decline']).withMessage('Consent must be approve or decline')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { childId } = req.params;
+      const { consent } = req.body;
+      const userId = req.user.id;
+
+      // Verify this is the child being linked
+      const childLink = await prisma.child.findFirst({
+        where: {
+          userId: childId,
+          consentStatus: 'PENDING'
+        }
+      });
+
+      if (!childLink) {
+        return res.status(404).json({ error: 'Запрос на привязку не найден' });
+      }
+
+      // Verify the authenticated user is the child
+      if (userId !== childId) {
+        return res.status(403).json({ error: 'Только ребёнок может подтвердить запрос' });
+      }
+
+      if (consent === 'approve') {
+        await prisma.child.update({
+          where: { id: childLink.id },
+          data: {
+            consentStatus: 'APPROVED',
+            consentedAt: new Date()
+          }
+        });
+        res.json({ message: 'Мониторинг одобрен' });
+      } else {
+        await prisma.child.delete({
+          where: { id: childLink.id }
+        });
+        res.json({ message: 'Запрос на мониторинг отклонён' });
+      }
+
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Consent Error:', error);
+      }
+      res.status(500).json({ error: 'Не удалось обработать согласие' });
+    }
+  }
+);
+
+// GET /api/parent/pending-consents - Get pending consent requests for a child
+router.get('/pending-consents', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Find pending link requests where this user is the child
+    const pendingRequests = await prisma.child.findMany({
+      where: {
+        userId,
+        consentStatus: 'PENDING'
+      },
+      include: {
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    res.json({ 
+      pendingRequests: pendingRequests.map(r => ({
+        id: r.id,
+        parentName: r.parent.name,
+        parentEmail: r.parent.email,
+        requestedAt: r.createdAt,
+        dataShared: [
+          'Активность обучения',
+          'Взаимодействия с AI репетитором',
+          'Прогресс по предметам'
+        ]
+      }))
+    });
+
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Pending Consents Error:', error);
+    }
+    res.status(500).json({ error: 'Не удалось загрузить запросы' });
+  }
+});
 
 module.exports = router;

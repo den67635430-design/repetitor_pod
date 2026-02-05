@@ -29,12 +29,20 @@ const registerLimiter = rateLimit({
   message: { error: 'Слишком много регистраций. Попробуйте позже.' }
 });
 
+// Password complexity regex: min 8 chars, 1 uppercase, 1 lowercase, 1 number
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+const PASSWORD_ERROR = 'Пароль должен содержать минимум 8 символов, заглавную и строчную буквы, и цифру';
+
 // POST /api/auth/register - Регистрация
 router.post('/register',
   registerLimiter,
   [
     body('email').isEmail().normalizeEmail(),
-    body('password').isLength({ min: 6, max: 128 }),
+    body('password')
+      .isLength({ min: 8, max: 128 })
+      .withMessage('Пароль должен быть от 8 до 128 символов')
+      .matches(PASSWORD_REGEX)
+      .withMessage(PASSWORD_ERROR),
     body('name').trim().isLength({ min: 2, max: 100 }),
     body('role').isIn(['STUDENT', 'PARENT']).optional()
   ],

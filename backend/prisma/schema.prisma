@@ -73,9 +73,21 @@ model Child {
   name          String
   grade         Int
   
+  // Privacy consent fields
+  consentStatus   ConsentStatus @default(PENDING)
+  consentedAt     DateTime?
+  childNotified   Boolean  @default(false)
+  notifiedAt      DateTime?
+  
   createdAt     DateTime @default(now())
   
   @@index([parentId])
+}
+
+enum ConsentStatus {
+  PENDING
+  APPROVED
+  DECLINED
 }
 
 model Parent {

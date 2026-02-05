@@ -7,18 +7,18 @@ const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 
-// Validate required environment variables before starting
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET environment variable is required');
-  process.exit(1);
-}
+// Validate ALL required environment variables before starting
+const { validateEnvironment } = require('./config/env.config');
+const config = validateEnvironment();
+
+const JWT_SECRET = config.JWT_SECRET;
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const aiRoutes = require('./routes/ai.routes');
 const supportRoutes = require('./routes/support.routes');
 const parentRoutes = require('./routes/parent.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 const server = http.createServer(app);
@@ -58,6 +58,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/parent', parentRoutes);
+app.use('/api/user', userRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
