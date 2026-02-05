@@ -69,7 +69,7 @@ const App: React.FC = () => {
           <a href="#try" className="hover:text-[#634ef2] transition-colors">Попробовать</a>
           <a href="#pricing" className="hover:text-[#634ef2] transition-colors">Тарифы</a>
         </div>
-        <button className="bg-[#634ef2] text-white px-7 py-3 rounded-full font-bold text-sm shadow-lg shadow-indigo-100 hover:brightness-110 active:scale-95 transition-all">
+        <button className="btn-glass-shimmer-sm text-white px-7 py-3 rounded-full font-bold text-sm">
           Начать бесплатно
         </button>
       </nav>
@@ -96,7 +96,7 @@ const App: React.FC = () => {
           </div>
           <button 
             onClick={() => document.getElementById('try')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-[#634ef2] text-white px-10 py-5 rounded-2xl font-black text-lg shadow-2xl shadow-indigo-200 hover:-translate-y-1 transition-all flex items-center gap-3"
+            className="btn-glass-shimmer text-white px-10 py-5 rounded-2xl font-black text-lg flex items-center gap-3"
           >
             Начать учиться
             <ChevronRight className="w-5 h-5" />
