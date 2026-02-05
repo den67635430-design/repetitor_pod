@@ -14,8 +14,9 @@ export default defineConfig(({ mode }) => {
       react(),
       mode === 'development' && componentTagger(),
     ].filter(Boolean),
-    // NOTE: API keys should NOT be exposed in client-side code
-    // The Gemini API should be called from a backend service instead
+    define: {
+      'import.meta.env.VITE_ANTHROPIC_API_KEY': JSON.stringify(env.ANTHROPIC_API_KEY || ''),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
