@@ -36,7 +36,7 @@ const HeroSection: React.FC = () => {
           
           <button 
             onClick={() => document.getElementById('try')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-yellow-400 hover:bg-yellow-500 text-foreground px-8 py-4 rounded-full font-bold text-base transition-all flex items-center gap-2 shadow-lg"
+            className="bg-warning hover:brightness-95 text-warning-foreground px-8 py-4 rounded-full font-bold text-base transition-all flex items-center gap-2 shadow-lg"
           >
             <span className="text-xl">🎓</span>
             Попробовать бесплатно

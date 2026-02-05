@@ -66,8 +66,8 @@ const ChatSection: React.FC = () => {
                   onClick={() => setSelectedSubject(s.name)}
                   className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
                     selectedSubject === s.name 
-                    ? 'bg-white text-primary shadow-md' 
-                    : 'bg-white/20 text-white hover:bg-white/30'
+                    ? 'bg-card text-primary shadow-md' 
+                    : 'bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30'
                   }`}
                 >
                   {s.icon} {s.name}

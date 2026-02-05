@@ -86,7 +86,7 @@ const PricingSection: React.FC = () => {
               }`}
             >
               От 3 месяцев
-              <span className="bg-yellow-400 text-yellow-900 text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-warning text-warning-foreground text-xs px-2 py-0.5 rounded-full font-bold">
                 -33%
               </span>
             </button>
@@ -105,7 +105,7 @@ const PricingSection: React.FC = () => {
               }`}
             >
               {plan.isPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-warning text-warning-foreground px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1">
                   <Star className="w-4 h-4 fill-current" />
                   Популярный
                 </div>
@@ -135,7 +135,7 @@ const PricingSection: React.FC = () => {
               <button 
                 className={`w-full py-4 rounded-xl font-bold transition-all ${
                   plan.isPopular 
-                  ? 'bg-white text-primary hover:bg-gray-100' 
+                  ? 'bg-card text-primary hover:bg-secondary' 
                   : 'bg-card border-2 border-border text-foreground hover:border-primary hover:text-primary'
                 }`}
               >
