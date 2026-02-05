@@ -57,7 +57,7 @@ const ChatSection: React.FC = () => {
 
         <div className="bg-card rounded-3xl border border-border shadow-xl overflow-hidden">
           {/* Subject selector header with gradient */}
-          <div className="bg-gradient-to-r from-primary to-purple-500 p-6 text-primary-foreground">
+          <div className="bg-gradient-to-r from-primary to-primary-light p-6 text-primary-foreground">
             <p className="font-bold mb-4">Выберите предмет:</p>
             <div className="grid grid-cols-3 gap-3">
               {subjects.map(s => (
