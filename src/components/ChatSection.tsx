@@ -11,7 +11,8 @@ const ChatSection: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const subjects: Subject[] = [
-    { name: "Математика", icon: "📐" },
+    { name: "Алгебра", icon: "➕" },
+    { name: "Геометрия", icon: "📐" },
     { name: "Русский", icon: "📖" },
     { name: "Английский", icon: "🇬🇧" },
     { name: "Физика", icon: "⚡" },
