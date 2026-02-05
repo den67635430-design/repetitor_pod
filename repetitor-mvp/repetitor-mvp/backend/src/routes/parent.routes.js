@@ -139,6 +139,31 @@ router.post('/link-child',
 
       const { childUserId, name, grade } = req.body;
 
+      // Verify that childUserId exists and is a STUDENT
+      const childUser = await prisma.user.findUnique({
+        where: { id: childUserId }
+      });
+
+      if (!childUser) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+
+      if (childUser.role !== 'STUDENT') {
+        return res.status(400).json({ error: 'Можно привязать только ученика' });
+      }
+
+      // Check if already linked
+      const existingLink = await prisma.child.findFirst({
+        where: {
+          parentId: req.user.id,
+          userId: childUserId
+        }
+      });
+
+      if (existingLink) {
+        return res.status(409).json({ error: 'Ребёнок уже привязан' });
+      }
+
       // Создать связь
       const child = await prisma.child.create({
         data: {
