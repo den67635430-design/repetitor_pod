@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
-import { Message, Subject } from '../types';
-import { getTutorResponse } from '../geminiService';
+import { Message, Subject } from '@/types';
+import { getTutorResponse } from '@/geminiService';
 
 const ChatSection: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
