@@ -131,7 +131,7 @@ router.post('/login',
         { userId: user.id, role: user.role },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '30d' }
-      });
+      );
 
       res.json({
         token,
