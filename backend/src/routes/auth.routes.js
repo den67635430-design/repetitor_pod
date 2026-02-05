@@ -139,10 +139,15 @@ router.post('/login',
 
       const { email, password } = req.body;
 
-      // Найти пользователя
+      // Найти пользователя - fetch passwordHash separately for verification
       const user = await prisma.user.findUnique({
         where: { email },
-        include: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          passwordHash: true, // Only for password verification, never returned
           profile: true,
           subscription: true
         }
@@ -198,11 +203,17 @@ router.get('/me', async (req, res) => {
 
     const payload = jwt.verify(token, JWT_SECRET);
 
+    // Explicitly exclude passwordHash from query results
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
         profile: true,
         subscription: true
+        // passwordHash explicitly excluded
       }
     });
 
