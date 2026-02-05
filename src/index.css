@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 240 50% 97%;
+    --background: 240 50% 98%;
     --foreground: 222 47% 11%;
     
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 252 85% 63%;
+    --primary: 252 85% 60%;
     --primary-foreground: 0 0% 100%;
     
     --secondary: 240 40% 96%;
@@ -22,7 +22,7 @@
     --muted: 240 20% 96%;
     --muted-foreground: 215 16% 47%;
     
-    --accent: 252 85% 63%;
+    --accent: 252 85% 60%;
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
@@ -30,16 +30,21 @@
     
     --border: 240 20% 90%;
     --input: 240 20% 90%;
-    --ring: 252 85% 63%;
+    --ring: 252 85% 60%;
     
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     
+    --warning: 45 93% 58%;
+    --warning-foreground: 0 0% 0%;
+    
     --radius: 1rem;
     
     /* Custom gradients */
-    --gradient-hero: linear-gradient(180deg, hsl(252 80% 95%) 0%, hsl(240 50% 97%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(252 85% 63%) 0%, hsl(252 90% 70%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(270 80% 95%) 0%, hsl(240 50% 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(270 80% 60%) 0%, hsl(252 85% 60%) 100%);
+    --gradient-purple: linear-gradient(135deg, hsl(270 80% 60%) 0%, hsl(280 70% 55%) 50%, hsl(252 85% 60%) 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(270 70% 55%) 0%, hsl(252 85% 60%) 100%);
   }
 
   .dark {
@@ -73,6 +78,9 @@
     
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    
+    --warning: 45 93% 58%;
+    --warning-foreground: 0 0% 0%;
   }
 }
 
@@ -113,4 +121,187 @@
 /* Button gradient */
 .btn-gradient {
   background: var(--gradient-primary);
+}
+
+/* Shimmer effect for buttons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes color-shift {
+  0%, 100% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(30deg);
+  }
+}
+
+.btn-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(252 85% 60%) 0%,
+    hsl(280 80% 65%) 25%,
+    hsl(320 75% 60%) 50%,
+    hsl(280 80% 65%) 75%,
+    hsl(252 85% 60%) 100%
+  );
+  background-size: 200% auto;
+  transition: all 0.3s ease;
+}
+
+.btn-shimmer:hover {
+  animation: shimmer 2s linear infinite;
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px -10px hsl(252 85% 60% / 0.5);
+}
+
+.btn-yellow-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(45 93% 55%) 0%,
+    hsl(35 95% 60%) 25%,
+    hsl(50 90% 58%) 50%,
+    hsl(35 95% 60%) 75%,
+    hsl(45 93% 55%) 100%
+  );
+  background-size: 200% auto;
+  transition: all 0.3s ease;
+}
+
+.btn-yellow-shimmer:hover {
+  animation: shimmer 2s linear infinite;
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px -10px hsl(45 93% 55% / 0.5);
+}
+
+.btn-outline-shimmer {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(252 85% 60% / 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-outline-shimmer:hover::before {
+  left: 100%;
+}
+
+.btn-outline-shimmer:hover {
+  transform: scale(1.05);
+  background: hsl(252 85% 60%);
+  color: white;
+}
+
+.btn-white-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(0 0% 100%) 0%,
+    hsl(270 50% 98%) 25%,
+    hsl(0 0% 100%) 50%,
+    hsl(270 50% 98%) 75%,
+    hsl(0 0% 100%) 100%
+  );
+  background-size: 200% auto;
+  transition: all 0.3s ease;
+}
+
+.btn-white-shimmer:hover {
+  animation: shimmer 2s linear infinite;
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px -10px hsl(0 0% 0% / 0.2);
+}
+
+.btn-dark-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(222 47% 20%) 0%,
+    hsl(252 40% 30%) 25%,
+    hsl(222 47% 20%) 50%,
+    hsl(252 40% 30%) 75%,
+    hsl(222 47% 20%) 100%
+  );
+  background-size: 200% auto;
+  transition: all 0.3s ease;
+}
+
+.btn-dark-shimmer:hover {
+  animation: shimmer 2s linear infinite;
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px -10px hsl(222 47% 20% / 0.5);
+}
+
+/* Subject button shimmer */
+.subject-btn {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.subject-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(0 0% 100% / 0.3),
+    transparent
+  );
+}
+
+.subject-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px -5px hsl(252 85% 60% / 0.4);
+}
+
+.subject-btn:hover::before {
+  animation: shimmer 1s linear;
+}
+
+/* Card hover */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 60px -15px hsl(252 85% 60% / 0.2);
+}
+
+/* Pricing card popular */
+.pricing-popular {
+  background: var(--gradient-purple);
+}
+
+/* Purple gradient background for sections */
+.purple-gradient-bg {
+  background: var(--gradient-cta);
+}
+
+/* Chat header gradient */
+.chat-header-gradient {
+  background: linear-gradient(135deg, hsl(252 85% 60%) 0%, hsl(280 70% 55%) 100%);
 }
