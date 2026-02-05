@@ -1,20 +1,72 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Repetitor - AI-Репетитор для школьников
 
-# Run and deploy your AI Studio app
+AI-репетитор для школьников 1-11 классов, использующий Claude AI для обучения через сократовский метод.
 
-This contains everything you need to run your app locally.
+## Функции
 
-View your app in AI Studio: https://ai.studio/apps/drive/1YrpuGmMrk2kNToAKEcx_aja4FZAiIbRu
+- 🎓 Поддержка 10+ школьных предметов
+- 🤖 AI-репетитор с методом наводящих вопросов
+- 📊 Отслеживание использования токенов
+- 👨‍👩‍👧 Родительский контроль
+- 💬 Telegram-бот интеграция
 
-## Run Locally
+## Структура проекта
 
-**Prerequisites:**  Node.js
+```
+├── src/                    # Frontend (React + Vite)
+├── backend/                # Backend API (Express + Prisma)
+├── telegram-bot/           # Telegram Bot
+└── docs/                   # Документация API
+```
 
+## Запуск локально
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+**Требования:** Node.js 18+
+
+### Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd backend
+npm install
+# Настройте .env файл (см. backend/.env.example)
+npm run dev
+```
+
+### Telegram Bot
+
+```bash
+cd telegram-bot
+npm install
+# Настройте переменные окружения
+node src/bot.js
+```
+
+## Переменные окружения
+
+Backend требует следующие переменные в `backend/.env`:
+
+- `JWT_SECRET` - Секрет для JWT токенов
+- `ANTHROPIC_API_KEY` - API ключ Anthropic Claude
+- `DATABASE_URL` - URL базы данных PostgreSQL
+
+Опционально:
+- `TELEGRAM_BOT_TOKEN` - Токен Telegram бота
+- `WEB_URL` - URL фронтенда для CORS
+
+## Безопасность
+
+- API ключи хранятся только на сервере
+- Аутентификация через JWT
+- Rate limiting на всех эндпоинтах
+- Проверка лимитов токенов по тарифам
+
+## Документация
+
+Подробная документация API: [docs/API.md](docs/API.md)
