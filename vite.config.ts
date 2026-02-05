@@ -14,9 +14,8 @@ export default defineConfig(({ mode }) => {
       react(),
       mode === 'development' && componentTagger(),
     ].filter(Boolean),
-    define: {
-      'import.meta.env.VITE_ANTHROPIC_API_KEY': JSON.stringify(env.ANTHROPIC_API_KEY || ''),
-    },
+    // Note: API keys should never be exposed to client-side code
+    // The Anthropic API key is kept server-side only in backend/.env
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

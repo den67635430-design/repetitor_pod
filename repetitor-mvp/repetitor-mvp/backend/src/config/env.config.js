@@ -50,6 +50,17 @@ function validateEnvironment() {
     }
   }
 
+  // Validate WEB_URL format if provided
+  const webUrl = process.env.WEB_URL;
+  if (webUrl && !webUrl.match(/^https?:\/\/.+/)) {
+    warnings.push(`WEB_URL has invalid format: ${webUrl}`);
+  }
+  
+  // Warn about http in production
+  if (process.env.NODE_ENV === 'production' && webUrl?.startsWith('http://')) {
+    warnings.push('WEB_URL uses http:// in production (should use https://)');
+  }
+
   // Log warnings
   if (warnings.length > 0) {
     console.warn('⚠️  Environment warnings:');
