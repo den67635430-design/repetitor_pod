@@ -3,14 +3,17 @@ const express = require('express');
 const router = express.Router();
 const aiService = require('../services/ai.service');
 const { authenticate } = require('../middleware/auth.middleware');
-const { body, validationResult } = require('express-validator');
+const { body, param, validationResult } = require('express-validator');
+
+// Valid subjects list
+const VALID_SUBJECTS = ['math', 'russian', 'english', 'physics', 'chemistry', 'biology', 'history', 'literature', 'french'];
 
 // POST /api/ai/chat - Отправить сообщение AI-репетитору
 router.post('/chat',
   authenticate,
   [
     body('message').trim().isLength({ min: 1, max: 2000 }),
-    body('subject').isString(),
+    body('subject').isString().isIn(VALID_SUBJECTS).withMessage('Invalid subject'),
     body('grade').isInt({ min: 0, max: 11 }),
     body('outputMode').isIn(['voice', 'text', 'both']).optional()
   ],
@@ -59,7 +62,9 @@ router.post('/chat',
       });
 
     } catch (error) {
-      console.error('AI Chat Error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('AI Chat Error:', error);
+      }
       res.status(500).json({ error: 'Не удалось получить ответ от AI' });
     }
   }
@@ -83,29 +88,40 @@ router.get('/subjects', async (req, res) => {
 });
 
 // GET /api/ai/history/:subject - Получить историю по предмету
-router.get('/history/:subject', authenticate, async (req, res) => {
-  try {
-    const { subject } = req.params;
-    const userId = req.user.id;
+router.get('/history/:subject',
+  authenticate,
+  param('subject').isIn(VALID_SUBJECTS).withMessage('Invalid subject'),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
+      const { subject } = req.params;
+      const userId = req.user.id;
 
-    const history = await prisma.aIInteraction.findMany({
-      where: {
-        userId,
-        subject
-      },
-      orderBy: { timestamp: 'desc' },
-      take: 50
-    });
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
 
-    res.json({ history });
+      const history = await prisma.aIInteraction.findMany({
+        where: {
+          userId,
+          subject
+        },
+        orderBy: { timestamp: 'desc' },
+        take: 50
+      });
 
-  } catch (error) {
-    console.error('History Error:', error);
-    res.status(500).json({ error: 'Не удалось загрузить историю' });
+      res.json({ history });
+
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('History Error:', error);
+      }
+      res.status(500).json({ error: 'Не удалось загрузить историю' });
+    }
   }
-});
+);
 
 module.exports = router;

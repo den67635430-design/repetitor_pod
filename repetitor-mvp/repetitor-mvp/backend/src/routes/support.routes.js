@@ -38,7 +38,9 @@ router.post('/message',
       });
 
     } catch (error) {
-      console.error('Support Error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Support Error:', error);
+      }
       res.status(500).json({ error: 'Не удалось обработать запрос' });
     }
   }
@@ -53,7 +55,9 @@ router.get('/history', authenticate, async (req, res) => {
     res.json({ history });
 
   } catch (error) {
-    console.error('Support History Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Support History Error:', error);
+    }
     res.status(500).json({ error: 'Не удалось загрузить историю' });
   }
 });
@@ -73,7 +77,9 @@ router.get('/tickets', authenticate, async (req, res) => {
     res.json({ tickets });
 
   } catch (error) {
-    console.error('Tickets Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Tickets Error:', error);
+    }
     res.status(500).json({ error: 'Не удалось загрузить тикеты' });
   }
 });
