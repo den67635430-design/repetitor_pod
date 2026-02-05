@@ -1,11 +1,11 @@
 import React from 'react';
-import Navigation from './components/Navigation';
-import HeroSection from './components/HeroSection';
-import ProblemsSection from './components/ProblemsSection';
-import ChatSection from './components/ChatSection';
-import PricingSection from './components/PricingSection';
-import CTASection from './components/CTASection';
-import Footer from './components/Footer';
+import Navigation from './src/components/Navigation';
+import HeroSection from './src/components/HeroSection';
+import ProblemsSection from './src/components/ProblemsSection';
+import ChatSection from './src/components/ChatSection';
+import PricingSection from './src/components/PricingSection';
+import CTASection from './src/components/CTASection';
+import Footer from './src/components/Footer';
 
 const App: React.FC = () => {
   return (
